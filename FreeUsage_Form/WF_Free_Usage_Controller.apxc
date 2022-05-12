@@ -1,0 +1,183 @@
+public class WF_Free_Usage_Controller {
+    public WF_Free_Usage__c wffu { get; set; }
+    public String accountId = ApexPages.currentPage().getParameters().get('accountId');
+    public String wffuId = ApexPages.currentPage().getParameters().get('id');
+    // form show/hide
+    public boolean isNewBlockShow { get; set; }
+    public boolean isOwnerBlockShow { get; set; }
+    public boolean isOtherBlockShow { get; set; }
+    // button show/hide
+    // public boolean isApproveShow { get; set; }
+    public boolean isSaveShow { get; set; }
+    // error message
+    // public String classInputApprover { get; set; }
+    // public String errorMessage { get; set; }
+    
+    public boolean isAccountInputShow { get; set; }
+    public boolean isAccountOutputShow { get; set; }
+    
+    public String name { get;set; }
+    public Account allAccountName { get; set; }
+    public boolean displayPopup { get;set; }
+    
+    public void showPopup() {
+        displayPopup = true;
+    }
+    public void closePopup() {
+        displayPopup = false;
+    }
+   public void closePopupAfterDelete() {  
+        displayPopup = false;
+        deleteFreeUsage();
+    } 
+    public void deleteFreeUsage() {
+        System.debug('Delete >> ' + wffuId);
+        Database.delete(wffuId);  
+    }
+    
+    public WF_Free_Usage_Controller(ApexPages.StandardController sc) {
+  		List<WF_Free_Usage__c> wffus = [SELECT Id, Name, Account__c, OwnerId, Contract_No__c, Request_free_usage_day__c,  Hour__c, Approve__c, Approver__c
+                                        FROM WF_Free_Usage__c WHERE Id =: wffuId];
+        if (wffus.size() == 0) {
+            wffu = new WF_Free_Usage__c();
+            wffu.Account__c = accountId;
+            isNewBlockShow = true;
+            isSaveShow = true;
+			//System.debug('accountId >> ' + accountId);
+			System.debug('wffuName >> ' + wffu.Name); 
+			System.debug('wffuId >> ' + wffuId);    
+            List<Account> allAccountName = [SELECT Name
+					   					 FROM Account
+					   					 WHERE Account.Id =: accountId ];
+            System.debug('33 accountId >> ' + accountId);
+            for(integer i=0 ; i<allAccountName.size() ; i++) {
+            	System.debug('name2 >> ' + allAccountName[i].Name);
+                name = allAccountName[i].Name;
+            }            
+        } else {
+            wffu = wffus[0];
+            System.debug('wffu' + wffu);
+            System.debug('wffuName >> ' + wffu.Name); 
+            System.debug('40 >> ' + wffu.Account__c);
+            isOtherBlockShow = true;
+            if (wffu.OwnerId == UserInfo.getUserId()) {
+                isOwnerBlockShow = true;
+                isOtherBlockShow = false;
+                isSaveShow = true;
+                List<Account> allAccountName = [SELECT Name
+					   					 FROM Account
+					   					 WHERE Account.Id =: wffu.Account__c ];
+                System.debug('49 accountId >> ' + wffu.Account__c);
+                for(integer i=0 ; i<allAccountName.size() ; i++) {
+                    System.debug('name2 >> ' + allAccountName[i].Name);
+                    name = allAccountName[i].Name;
+                }
+			} else if (wffu.Approver__c == UserInfo.getUserId()) {
+                //isApproveShow = true;
+			}
+        }
+    }
+    
+    /*public List<SelectOption> getApproverOptions() {
+        List<User> approvers;
+        if (UserInfo.getUserRoleId() != Null) {
+            String roleName = [SELECT Name FROM UserRole WHERE Id = :UserInfo.getUserRoleId()].Name;
+            if (roleName == 'Administrator') {
+                approvers = [SELECT Id, FirstName, LastName FROM User WHERE UserRole.Name = 'Administrator' AND UserRoleId != Null ORDER BY FirstName, LastName ASC];
+            } else {
+                String parentRoleId = [SELECT ParentRoleId FROM UserRole WHERE Id = :UserInfo.getUserRoleId()].ParentRoleId;
+                String parentRoleName = [SELECT Name FROM UserRole WHERE Id = :parentRoleId].Name;
+                if (parentRoleName == 'Division Manager') {
+                    parentRoleId = [SELECT ParentRoleId FROM UserRole WHERE Name = 'Division Manager'].ParentRoleId;
+                    approvers = [SELECT Id, FirstName, LastName FROM User WHERE UserRoleId = :parentRoleId AND UserRoleId != Null ORDER BY FirstName, LastName ASC];
+                } else {
+                    approvers = [SELECT Id, FirstName, LastName FROM User WHERE UserRoleId = :parentRoleId AND UserRoleId != Null ORDER BY FirstName, LastName ASC];
+                }
+            } 
+        }
+        
+        String profileName = [SELECT Name FROM Profile WHERE Id = :UserInfo.getProfileId()].Name;
+		List<User> approvers;
+        if (profileName == 'System Administrator') {
+            approvers = [SELECT Id, FirstName, LastName FROM User ORDER BY FirstName, LastName ASC];
+        } else if (profileName.contains('S01')) {
+            approvers = [SELECT Id, FirstName, LastName FROM User WHERE Profile.Name = 'S01|EU - Sales Manager' ORDER BY FirstName, LastName ASC];
+        } else if (profileName.contains('S02')) {
+            approvers = [SELECT Id, FirstName, LastName FROM User WHERE Profile.Name = 'S02|US - Sales Manager' ORDER BY FirstName, LastName ASC];
+        } else {
+            approvers = [SELECT Id, FirstName, LastName FROM User WHERE ProfileId = :UserInfo.getProfileId() ORDER BY FirstName, LastName ASC];
+        }
+        List<SelectOption> options = new List<SelectOption>();
+        options.add(new SelectOption('','--Select--'));
+        if(approvers != Null && !approvers.isEmpty()) {
+            for (User ap : approvers) { 
+                options.add(new SelectOption(ap.Id, ap.FirstName + ' ' + ap.LastName));
+            }
+        }
+        return options;
+    }*/
+    
+    /*public void approve() { 
+        if(wffu != null) {
+            wffu.Approve__c = 'Yes';
+            upsert wffu;
+        }
+    }
+    
+    public void reject() { 
+        if(wffu != null) {
+            wffu.Approve__c = 'No';
+            upsert wffu;
+        }
+    }*/
+    
+    public void save() {
+        if(wffu != null) {
+            upsert wffu;
+            ApexPages.addmessage(new ApexPages.message(ApexPages.severity.CONFIRM,'Record insert successfully'));
+        }
+    }
+        /*try {
+            if(wffu != null) {
+                if (wffu.Approver__c == null) {
+                    classInputApprover = 'error';
+                    errorMessage = 'Error: You must select an approver';
+                } else {
+                    classInputApprover = '';
+                    errorMessage = '';
+                    upsert wffu;
+                    // send mail
+                    // String approver = [SELECT Email FROM User WHERE Id = :wffu.Approver__c limit 1].Email;
+                    String account = [SELECT Name FROM Account WHERE Id = :wffu.Account__c limit 1].Name;
+                    String subject = 'Please review ' + account + '\'s free usage';
+                    String body = 'Please see the details of ' + account + '\'s free usage <br/>' 
+                        + 'To view, this Free Usage <a href=' + getPageURL() + '>click here.</a>';
+                    //SendMail.main(approver, subject, body);
+                    // redirect
+                    redirect();
+                }
+        	}
+        } catch(System.DMLException e) {
+            ApexPages.addMessages(e);
+        }
+    }*/
+    
+    public PageReference cancel() { 
+        PageReference pageRef = new PageReference('/lightning/r/Account/' + wffu.Account__c +'/view');
+        pageRef.setRedirect(true);
+        return pageRef;
+    }
+    
+    public PageReference redirect() {
+        PageReference pageRef = new PageReference('/lightning/r/WF_Free_Usage__c/' + wffu.Id +'/view');
+        pageRef.setRedirect(true);
+        return pageRef;
+    }
+    
+    public String getPageURL() {
+        String urlInstance = String.valueof(System.URL.getOrgDomainUrl()).replace('Url:[delegate=','').replace(']','');
+   		String[] instance = urlInstance.split('\\.');
+        String url = instance[0] + '.lightning.force.com/lightning/r/WF_Free_Usage__c/' + wffu.Id + '/edit';
+        return url;
+	}
+}

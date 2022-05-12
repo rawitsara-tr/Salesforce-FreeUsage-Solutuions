@@ -1,0 +1,331 @@
+<apex:page lightningStylesheets="true" Controller="WF_Free_Usage_ListView_Controller">
+  	<apex:variable value="{!accountName}" var="acc" />
+    <style>
+        .approve {
+            color: green;
+        }
+    
+        .reject {
+            color: red;
+        }
+    
+        .myCol {
+            margin-bottom: -10px;
+            margin-left: 11px;
+            margin-top: 5px;
+            margin-right: 5px;
+        }
+    
+        header.slds-media.slds-media_center.slds-has-flexi-truncate {
+            margin-left: 9px;
+        }
+    
+        body .bPageBlock {
+            border: none;
+        }
+    
+        .slds-scope .slds-text-color_weak {
+            padding-left: 0px;
+        }
+    
+        .slds-scope .slds-card__footer {
+            width: 850px;
+            text-align: left;
+            padding-left: 0rem;
+            padding-right: 0rem;
+            border-top-width: none;
+            border-top-style: none;
+        }
+    
+        #j_id0\:j_id16\:j_id21>div.pbSubsection {
+            width: 50px;
+            height: 203px;
+        }
+    
+        #j_id0\:j_id16\:j_id21\:j_id47\:j_id48>tfoot>tr>td {
+            text-align: right;
+        }
+    
+        .next {
+            text-align: left !important;
+            margin-left: 10px;
+        }
+    
+        .page {
+            float: right;
+            margin-left: 5px;
+        }
+    
+        body .slds-vf-data-table thead th {
+            text-align: center;
+            font-weight: bold;
+        }
+    
+        .slds-scope td {
+            text-align: center;
+        }
+    
+        body .list tfoot tr {
+            text-align: right;
+        }
+    
+        .footer {
+            text-align: right;
+            margin-top: 5px;
+            margin-right: 5px;
+        }
+    
+        .spanFooter {
+            margin-left: 15px;
+        }
+    
+        form#j_id0\:j_id4 {
+            margin: auto;
+            width: 98%;
+        }
+    
+        #j_id0\:j_id16 {
+            margin: auto;
+            width: 98%;
+        }
+    
+        #j_id0\:j_id4\:j_id14 {
+            box-shadow: none;
+        }
+    
+        #j_id0\:j_id4\:j_id14 {
+            padding-bottom: 0px;
+            margin-bottom: 0px;
+        }
+    
+        .myTwoButton {
+            border: none !important;
+            margin-rigth: 1px !important;
+            margin-bottom: 2px !important;
+            padding: 1px 10px !important;
+        }
+    
+        .slds-scope .slds-button_icon-container,
+        .slds-scope .slds-button--icon-container,
+        .slds-scope .slds-button_icon-border,
+        .slds-scope .slds-button--icon-border,
+        .slds-scope .slds-button_icon-border-filled,
+        .slds-scope .slds-button--icon-border-filled,
+        .slds-scope .slds-button_icon-border-inverse,
+        .slds-scope .slds-button--icon-border-inverse,
+        .slds-scope .slds-button_icon-brand,
+        .slds-scope .slds-button_icon-more,
+        .slds-scope .slds-button--icon-more,
+        .slds-scope .slds-button_icon-container-more,
+        .slds-scope .slds-button--icon-container-more {
+            width: 20px;
+            height: 15px;
+        }
+    
+        .slds-scope .slds-dropdown {
+            min-width: 70px !important;
+            max-width: 70px !important;
+        }
+        
+        #j_id0\:j_id16 > .pbBody {
+         	height: 220px;
+        }
+    </style>
+    <apex:slds />
+    
+  	<apex:form >
+        <!-- Green Header -->
+        <div class="myCol">
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <div class="slds-media__figure">
+                    <span class="slds-icon_container slds-icon-standard-task" title="FreeUsage">
+                        <svg class="slds-icon slds-icon_small">
+                            <use xmlns:xlink="http://www.w3.org/1999/xlink"
+                                xlink:href="/_slds/icons/standard-sprite/svg/symbols.svg#task"></use>
+                        </svg>
+                        <span class="slds-assistive-text">Free Usage</span>
+                    </span>
+                </div>
+                <div class="slds-media__body">
+                    <h2 class="slds-card__header-title">
+                        <a href="#" class="slds-card__header-link slds-truncate" title="WF Free Usage">
+                            <span>WF Free Usage</span>
+                        </a>
+                    </h2>
+                </div>
+    
+                <!-- Button Right Top -->
+                <apex:commandButton action="/apex/WF_Free_Usage?accountId={!accountId}" rerender="pgBlckId" status="actStatusId" value="New" />
+            </header>
+        </div>
+    
+        <!-- Confirm Window -->
+        <apex:outputPanel id="confirm" rendered="{!displayPopup != false }">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <div class="slds-modal__header">
+                        <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">
+                            Are you sure !
+                        </h1>
+                    </div>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <p style="text-align: center;">You want to delete Free Usage ?</p>
+                    </div>
+                    <!-- Button -->
+                    <div class="slds-modal__footer">
+                        <apex:commandButton value="Cancel" action="{!closePopup}" />
+                        <apex:commandButton style="background-color: #0176d3; color: white;" value="OK"
+                            action="{!closePopupAfterDelete}" />
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+        </apex:outputPanel>
+    
+        <!-- List of all free usage -->
+        <apex:pageBlock >
+            <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                <div class="slds-media__body">
+                    <dt class="slds-item_label slds-text-color_weak slds-truncate">
+                        List of all free usage ({!total_size})
+                    </dt>
+                </div>
+            </header>
+        </apex:pageBlock>
+    </apex:form>
+    
+    <!-- Table -->
+    <apex:pageBlock >
+        <apex:form >
+            <apex:outputPanel id="myPanel">
+                <apex:pageMessages id="theMessages" />
+                <apex:pageBlockTable value="{!freeUsage}" var="wf" align="center">
+                    <apex:column value="{!wf.Name}" />
+                    <apex:column value="{!wf.Contract_No__c}" />
+                    <apex:column value="{!wf.Hour__c}" />
+                    <apex:column value="{!wf.Request_free_usage_day__c}" />
+                    <apex:column headerValue="Action">
+    
+                        <div class="slds-dropdown-trigger slds-dropdown-trigger--click" aria-expanded="false">
+                            <button Style="font-size: 9px;" type="button"
+                                class="slds-button slds-button--icon-border-filled" aria-haspopup="true">
+                                ▼
+                            </button>
+                            <div class="slds-dropdown slds-dropdown--left">
+                                <ul class="slds-dropdown__list" role="menu">
+                                    <li class="slds-dropdown__item">
+                                        <apex:commandLink action="/lightning/r/WF_Free_Usage__c/{!wf.Id}/edit" value="Edit"
+                                            rerender="pgBlckId" status="actStatusId" />
+                                    </li>
+                                    <li class="slds-dropdown__item">
+                                        <apex:commandlink value="Delete" action="{!showPopup}">
+                                            <apex:param name="selectedFreeUsageId" value="{!wf.Id}"
+                                                assignTo="{!selectedFreeUsageId}" />
+                                        </apex:commandlink>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </apex:column>
+                </apex:pageBlockTable>
+                <div class="footer">
+                    <span class="spanFooter">
+                        Records {!(pageNumber * size)+1-size} - {!IF((pageNumber * size)>total_size, total_size, (pageNumber
+                        * size))} of {!total_size}
+                    </span>
+                    <span class="spanFooter">
+                        <apex:outputPanel id="myButtons">
+                            <apex:commandButton styleClass="myTwoButton" status="actStatusId" action="{!Previous}"
+                                title="Previous" value="<" disabled="{!disablePrevious}" reRender="myPanel,myButtons" />
+                            <apex:commandButton styleClass="myTwoButton" status="actStatusId" action="{!Next}" title="Next"
+                                value=">" disabled="{!disableNext}" reRender="myPanel,myButtons" />
+                        </apex:outputPanel>
+                    </span>
+                </div>
+            </apex:outputPanel>
+        </apex:form>
+    </apex:pageBlock>
+    
+    <!-- Spinner Button -->
+    <apex:actionstatus id="actStatusId">
+        <apex:facet name="start">
+            <div class="waitingSearchDiv" id="el_loading"
+                style="background-color: #fbfbfb; height: 100%; opacity: 0.65; width: 100%;">
+                <div class="waitingHolder" style="top: 74.2px; width: 91px">
+                    <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+                </div>
+            </div>
+        </apex:facet>
+    </apex:actionstatus>
+    
+    <!--Spinner load page-->
+    <div class="demo-only" id="loading" style="height: 100%; opacity: 0.65; width: 100%">
+        <div class="slds-spinner_container">
+            <div role="status" class="slds-spinner slds-spinner_medium slds-spinner_delayed">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+    	setTimeout(function () {document.getElementById("loading").className += " slds-hide";}, 2000);
+    </script>
+    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script type='text/javascript'>
+        var $j = jQuery.noConflict();
+        $j(document).ready(function () {
+            init();
+        });
+        function init() {
+            $j('.slds-tabs--scoped__item').off('click');
+            $j('.slds-tabs--scoped__item').on('click', function () {
+                $j(this).addClass('slds-active');
+                $j(this).find('a').attr('aria-selected', true);
+                var contentToShow = $j('#' + $j(this).find('a').attr('aria-controls'));
+                $j(contentToShow).removeClass('slds-hide');
+                $j(contentToShow).addClass('slds-show');
+                $j(this).siblings().removeClass('slds-active');
+                $j(this).siblings().find('a').attr('aria-selected', false);
+                $j(contentToShow).siblings('.slds-tabs--scoped__content').removeClass('slds-show');
+                $j(contentToShow).siblings('.slds-tabs--scoped__content').addClass('slds-hide');
+            });
+            //$j('.slds-dropdown-trigger .slds-button').off('click');
+            $j(document).on('click', '.slds-dropdown-trigger .slds-button', function (event) {
+                console.log('Test');
+                event.stopPropagation();
+                if ($j(this).parent().hasClass('slds-is-open')) {
+                    $j(this).parent().removeClass('slds-is-open');
+                    $j(this).parent().attr('aria-expanded', false);
+                } else {
+                    $j('.slds-dropdown-trigger').removeClass('slds-is-open');
+                    $j('.slds-dropdown-trigger').attr('aria-expanded', false);
+    
+                    $j(this).parent().addClass('slds-is-open');
+                    $j(this).parent().attr('aria-expanded', true);
+                }
+            });
+            $j(document).click(function () {
+                $j('.slds-dropdown-trigger').removeClass('slds-is-open');
+                $j('.slds-dropdown-trigger').attr('aria-expanded', false);
+            });
+            $j('.slds-form-element__icon').hover(
+                function () {
+                    var tooltip = $j(this).find('.slds-popover');
+                    tooltip.css({ position: 'absolute', left: '0px', margin: '-1.5rem', width: '20rem' });
+                    var t = $j(tooltip).outerHeight() - 15;
+                    t *= -1;
+                    tooltip.css({ top: t });
+                    tooltip.removeClass('slds-hide');
+                    tooltip.addClass('slds-show');
+                }, function () {
+                    var tooltip = $j(this).find('.slds-popover');
+                    tooltip.removeClass('slds-show');
+                    tooltip.addClass('slds-hide');
+                }
+            );
+        }
+    </script>
+</apex:page>

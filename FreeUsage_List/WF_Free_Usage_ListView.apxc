@@ -1,0 +1,116 @@
+public class WF_Free_Usage_ListView_Controller { 
+    public String accountId { get; set; }
+    public Integer allData { get; set; }
+    public String selectedFreeUsageId { get;set; }
+    public String name { get;set; }
+    public boolean displayPopup { get;set; }
+    private Integer offset = 0;
+    public Integer size { get; set; }
+    public Integer total_size;
+    
+    List<WF_Free_Usage__c> wffu;
+    List<Account> accountName;  
+           
+    public WF_Free_Usage__c[] getFreeUsage() {
+        try {
+            WF_Free_Usage__c[] freeUsage = [SELECT Id, Name, Contract_No__c, Hour__c, Request_free_usage_day__c, Approve__c, Account__c
+                FROM WF_Free_Usage__c
+                WHERE Account__c =: accountId
+                LIMIT: size
+                OFFSET: offset
+            ];
+            total_size = [SELECT count() FROM WF_Free_Usage__c WHERE Account__c =: accountId];
+            return freeUsage;
+        } catch (QueryException e) {
+            ApexPages.addMessages(e);
+            return null;
+        }
+    }
+    
+    public PageReference Beginning() {
+        offset = 0;
+        return null;
+    }
+    
+    public PageReference Previous() {
+        offset -= size;
+        return null;
+    }
+    
+    public PageReference Next() {
+        offset += size;
+        return null;
+    }
+    
+    public PageReference End() {
+        offset = total_size - math.mod(total_size, size);
+        return null;
+    }
+    
+    public Boolean getDisablePrevious() {
+        if (offset > 0) return false;
+        else return true;
+    }
+    
+    public Boolean getDisableNext() {
+        if (offset + size < total_size) return false;
+        else return true;
+    }
+    
+    public Integer getTotal_size() {
+        return total_size;
+    }
+    
+    public Integer getPageNumber() {
+        return offset / size + 1;
+    }
+    
+    public Integer getTotalPages() {
+        if (math.mod(total_size, size) > 0) {
+            return total_size / size + 1;
+        } else {
+            return (total_size / size);
+        }
+    }
+    
+    public List < Account > getAccountName() {
+        accountName = [SELECT Name
+            FROM Account
+            WHERE Account.Id =: accountId
+        ];
+        for (integer i = 0; i < accountName.size(); i++) {
+            name = accountName[i].Name;
+        }
+        return accountName;
+    }
+    
+    public WF_Free_Usage_ListView_Controller() {
+        size = 10;
+        accountId = ApexPages.currentPage().getParameters().get('id');
+        total_size = [SELECT count() FROM WF_Free_Usage__c WHERE Account__c =: accountId];
+        displayPopup = false;
+    }
+    
+    public void showPopup() {
+        displayPopup = true;
+    }
+    
+    public void closePopup() {
+        displayPopup = false;
+    }
+    
+    public void closePopupAfterDelete() {
+        displayPopup = false;
+        deleteFreeUsage();
+    }
+    
+    public void deleteFreeUsage() {
+        Database.delete(selectedFreeUsageId);
+    }
+    
+    public PageReference newFreeUsage() {
+        PageReference pageRef = new PageReference('/apex/WF_Free_Usage_ListView');
+        pageRef.setRedirect(true);
+        return pageRef;
+    }
+}

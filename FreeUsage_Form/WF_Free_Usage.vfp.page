@@ -1,0 +1,237 @@
+<apex:page lightningStylesheets="true" standardController="WF_Free_Usage__c" extensions="WF_Free_Usage_Controller">
+    <style>
+    .approve {color: green;}
+        .reject {color: red;}
+        .approveButton { 
+            background-color: green; 
+            color: green;
+        }
+        .rejectButton { 
+          background-color: red; 
+          color: red;
+        }
+        body .message h4 {
+        	font-weight: bold;
+        } 
+        .slds-tile__detail { 
+        	margin-left: 36px;
+        }
+        .myColFrame {
+        	background-color: white;
+        	margin-left: 10px;
+        	margin-right: 10px;
+			height: 40px;
+        	border-radius: 3px;
+        }
+        .myCol table {
+        	background-color: white;
+        	margin-left: 63px;
+        	margin-top: 0px;
+        	margin-bottom: 0px;
+        	width: 600px;
+        }
+        table,
+        td {
+            border: none;
+        }
+        .slds-page-header {
+        	margin-top: 10px;
+        	margin-left: 10px;
+        	margin-right: 10px;
+        }
+        .myPageBlock {
+        	margin-top: 10px;
+        	margin-left: 10px;
+        	margin-right: 10px;
+        }
+        .slds-brand-band:before {
+            top: 0 !important;
+        	height: 300% !important;
+		}
+	</style>
+    <apex:slds />
+    <div class="slds-brand-band slds-brand-band_large">
+        <apex:form >
+            <apex:outputpanel >
+                <apex:actionstatus id="actStatusId">
+                    <apex:facet name="start">
+                        <div class="waitingSearchDiv" id="el_loading" style="background-color: #f9f9fd;
+                                                                             height: 100%;opacity:0.65;width:100%;"> 
+                            <div class="waitingHolder" style="top: 74.2px; width: 91px;">
+                                <img class="waitingImage" src="/img/loading.gif" title="Please Wait..." />
+                            </div>
+                        </div>
+                    </apex:facet>
+                </apex:actionstatus>
+            </apex:outputpanel>
+   
+            <apex:outputPanel id="confirm" rendered="{!displayPopup != false }">
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                    class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container">
+                        <div class="slds-modal__header">
+                            <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Are you sure ! </h1>
+                        </div>
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                            <p style="text-align: center;">You want to delete Free Usage ? </p>
+                        </div>
+                        <div class="slds-modal__footer">
+                            <apex:commandButton value="Cancel" action="{!closePopup}" />
+                            <apex:commandButton style="background-color: #0176d3; color: white;" value="Ok" action="{!closePopupAfterDelete}" />
+                        </div>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+            </apex:outputPanel>
+        </apex:form>
+        
+        <apex:form >
+            <div class="highlights slds-clearfix slds-page-header slds-page-header_record-home fixed-position"
+                 	style="height: 114px; left: 11.7547px; right: 12.7547px; padding-left: 12.2453px; padding-right: 12.2453px; border-radius: 4px; transform: translate3d(0px, -1px, 0px);">
+            	<div class="slds-grid primaryFieldRow">
+                	<div class="slds-grid slds-col slds-has-flexi-truncate">
+                        <div class="slds-media slds-no-space">
+                            <slot name="icon">
+                                <force-social-record-avatar-wrapper slot="icon">
+                                    <div class="slds-media__figure">
+                                        <div class="slds-clearfix slds-grid">
+                                            <span class="slds-col">
+                                                <force-record-avatar>
+                                                    <div class="slds-media__figure">
+                                                        <span class="slds-icon_container slds-icon-standard-opportunity" title="opportunity">
+                                                            <svg class="slds-icon slds-page-header__icon" aria-hidden="true">
+                                                                <use  xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/_slds/icons/standard-sprite/svg/symbols.svg#opportunity"></use>
+                                                            </svg>
+                                                        </span>
+                                                    </div>
+                                            	</force-record-avatar>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </force-social-record-avatar-wrapper>
+                            </slot>
+                        </div>
+                        <div class="slds-media__body">
+                            <h1>
+                                <div class="slds-page-header__name">
+                                    <div class="slds-page-header__name-title">
+                                        Account
+                                        <h1><span class="slds-page-header__title slds-truncate" title="Free Usage">Free Usage</span></h1>
+                                    </div>
+                                </div> 
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="slds-col slds-no-flex slds-grid slds-grid_vertical-align-center horizontal slds-m-right--xx-small chatterActionContainer">
+                        <div class="slds-grid forceActionsContainer" data-aura-rendered-by="1908:0" data-aura-class="forceActionsContainer">
+                            <apex:outputPanel rendered="{!if(wffu.Name != null , true ,false)}">  
+                            	<span data-aura-rendered-by="1960:0">
+                                    <apex:commandButton value="Delete" action="{!showPopup}">
+                                    </apex:commandButton>       
+                                </span>
+                            </apex:outputPanel>	  
+                        </div>
+                    </div>
+                </div>    
+                <div class="secondaryFields" style="visibility: visible; transform: translate3d(0px, 0px, 0px); opacity: 1;">
+                    <slot name="secondaryFields" class="slds-grid slds-page-header__detail-row">
+                        <records-highlights-details-item slot="secondaryFields" role="listitem" class="slds-page-header__detail-block" style="max-width: 111px;">
+                        	<div>
+                                <div class="myCol">
+                                    <table>
+                                        <tbody>
+                                            <tr>
+                                                <td>Account Name</td>
+                                                <td>Free Usage</td>
+                                                <td>Free Usage Owner</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <p class="slds-page-header__name-meta"><apex:commandLink action="/lightning/r/Account/{!wffu.Account__c}/view"
+                                                                        value="{!name}" />
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <apex:outputPanel rendered="{!if(wffu.Name != null , true ,false)}">  
+                                                        <p>{!wffu.Name}</p>
+                                                    </apex:outputPanel>	
+                                                    <apex:outputPanel rendered="{!if(wffu.Name == null , true ,false)}">  
+                                                        <p>None</p>
+                                                    </apex:outputPanel>
+                                                </td>
+                                                <td>{!$User.Username}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </records-highlights-details-item>
+                    </slot>
+                </div>
+            </div>
+        </apex:form>
+        
+        <apex:form >
+            <div class="myPageBlock">
+                <apex:pageBlock >
+                    <apex:pageMessages />  
+                    <apex:pageBlockSection collapsible="false" columns="2" rendered="{!isNewBlockShow}">   
+                        <apex:inputField required="true" value="{!wffu.Account__c}" />
+                        <apex:pageBlockSectionItem />
+                        <apex:inputField required="true" value="{!wffu.Contract_No__c}" />
+                        <apex:pageBlockSectionItem />
+                        <apex:inputField required="true" value="{!wffu.Request_free_usage_day__c}" />
+                        <apex:pageBlockSectionItem />
+                        <apex:inputField required="true" value="{!wffu.Hour__c}" />
+                        <apex:pageBlockSectionItem />
+                        <!--<apex:selectList styleClass="{!classInputApprover}" multiselect="false" size="1" label="Approver" value="{!wffu.Approver__c}">
+                            <apex:selectOptions value="{!ApproverOptions}" />
+                        </apex:selectList>-->
+                        <!--<apex:outputText value="{!errorMessage}" styleClass="errorMsg" rendered="{!LEN(errorMessage)>0}" />-->
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockSection collapsible="false" columns="2" rendered="{!isOwnerBlockShow}">
+                        <!--<apex:outputText value="{!wffu.Account__c}" />-->
+                        <apex:inputField required="true" value="{!wffu.Account__c}" html-disabled="true"/>
+                        <!--<apex:outputText styleClass="{!IF(wffu.Approve__c == null,'',IF(wffu.Approve__c == 'Yes','approve','reject'))}" label="Approve Status" value="{!IF(wffu.Approve__c == null,'Pending',IF(wffu.Approve__c == 'Yes','Approved','Rejected'))}" /> -->
+                        <apex:pageBlockSectionItem />
+                        <apex:inputField required="true" value="{!wffu.Contract_No__c}" />
+                        <apex:pageBlockSectionItem />
+                        <apex:inputField required="true" value="{!wffu.Request_free_usage_day__c}" />
+                        <apex:pageBlockSectionItem />
+                        <apex:inputField required="true" value="{!wffu.Hour__c}" />
+                        <apex:pageBlockSectionItem />
+                        
+                        <!--<apex:selectList styleClass="{!classInputApprover}" multiselect="false" size="1" label="Approver" value="{!wffu.Approver__c}">
+                            <apex:selectOptions value="{!ApproverOptions}" />
+                        </apex:selectList>-->
+        
+                        <!--<apex:outputText value="{!errorMessage}" styleClass="errorMsg" rendered="{!LEN(errorMessage)>0}" />-->
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockSection collapsible="false" columns="2" rendered="{!isOtherBlockShow}">
+                        <apex:inputField value="{!wffu.Account__c}" html-disabled="true" />
+                        <!--<apex:outputText styleClass="{!IF(wffu.Approve__c == null,'',IF(wffu.Approve__c == 'Yes','approve','reject'))}" label="Approve Status" value="{!IF(wffu.Approve__c == null,'Pending',IF(wffu.Approve__c == 'Yes','Approved','Rejected'))}" /> -->
+                        <apex:inputField value="{!wffu.Contract_No__c}" html-disabled="true" />
+                        <apex:pageBlockSectionItem />
+                        <apex:inputField value="{!wffu.Request_free_usage_day__c}" html-disabled="true" />
+                        <apex:pageBlockSectionItem />
+                        <apex:inputField value="{!wffu.Hour__c}" html-disabled="true" />
+                        <apex:pageBlockSectionItem />
+                        <!--<apex:selectList multiselect="false" size="1" label="Approver" value="{!wffu.Approver__c}" disabled="true">
+                            <apex:selectOptions value="{!ApproverOptions}" />
+                        </apex:selectList>-->
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockButtons location="bottom">
+                        <!--<apex:commandButton styleClass="approveButton" value="Approve" action="{!approve}" rendered="{!isApproveShow}" />-->
+                        <!--<apex:commandButton styleClass="rejectButton" value="Reject" action="{!reject}" rendered="{!isApproveShow}" />-->
+                        <!--apex:commandButton value="Save" action="{!save}" rendered="{!isSaveShow}" rerender="pgBlckId" status="actStatusId" /-->
+                        <apex:commandButton value="Cancel" action="{!cancel}" rerender="pgBlckId" status="actStatusId"  />
+                        <apex:commandButton style="background-color: #0176d3; color: white;" value="Save" action="{!save}" rendered="{!isSaveShow}" status="actStatusId" />
+                    </apex:pageBlockButtons>
+                </apex:pageBlock>
+        	</div>
+        </apex:form>
+    </div>
+</apex:page>

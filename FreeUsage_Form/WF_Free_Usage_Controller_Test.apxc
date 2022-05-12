@@ -1,0 +1,96 @@
+@IsTest
+public class WF_Free_Usage_Controller_Test {
+
+    @TestSetup
+    private static void setup() {
+        // Profile and User
+        Profile p = [SELECT Id, Name FROM Profile WHERE Name = 'System Administrator'];
+        User u = new User(Alias = 'admin', Email = 'admin@myorg.com',
+            EmailEncodingKey = 'UTF-8', LastName = 'Testing', LanguageLocaleKey = 'en_US',
+            LocaleSidKey = 'en_US', ProfileId = p.Id,
+            TimeZoneSidKey = 'America/New_York', UserName = 'admin@mail.com');
+        insert u;
+        
+		// Insert Account
+        Account account = new Account(Name = 'John', SAP_Billing_Country_Code__c = 'DE');
+        account.Type = 'Customer';
+        account.Customer_Segment__c = 'MICE';
+        account.Industry = 'Hotel';
+        account.New_Hotel_chain_member__c = 'Other';
+        account.Hotel_Brand__c = 'Other';
+        insert account;
+        
+        // Insert Free Usage
+        WF_Free_Usage__c wffu = new WF_Free_Usage__c();
+        wffu.Account__c = account.Id;
+        insert wffu;
+    }
+    
+    @isTest
+    static void testShowPopup() {
+		WF_Free_Usage_Controller controller = new WF_Free_Usage_Controller(null);
+        controller.showPopup();
+    }
+    
+    @isTest
+    static void testClosePopup() {
+		WF_Free_Usage_Controller controller = new WF_Free_Usage_Controller(null);
+        controller.closePopup();
+    }
+    
+    @isTest
+    static void testClosePopupAfterDelete() {
+        WF_Free_Usage__c wffu = [SELECT Id FROM WF_Free_Usage__c LIMIT 1];
+        WF_Free_Usage_Controller controller = new WF_Free_Usage_Controller(null);
+        controller.wffuId = wffu.Id;
+        controller.closePopupAfterDelete();
+    }
+    
+    @isTest
+    static void testDefault() {
+        Account account = [SELECT Id FROM Account LIMIT 1];
+        ApexPages.currentPage().getParameters().put('accountId', account.Id);
+        
+        WF_Free_Usage_Controller controller = new WF_Free_Usage_Controller(null);
+    }
+    
+    @isTest
+    static void testDefaultHaveWFFUs() {
+        WF_Free_Usage__c wffu = [SELECT Id FROM WF_Free_Usage__c LIMIT 1];
+        ApexPages.currentPage().getParameters().put('id', wffu.Id);
+
+        WF_Free_Usage_Controller controller = new WF_Free_Usage_Controller(null);
+    }
+    
+    @isTest
+    static void testSave() {
+        WF_Free_Usage_Controller controller = new WF_Free_Usage_Controller(null);
+        WF_Free_Usage__c wffu = [SELECT Id FROM WF_Free_Usage__c LIMIT 1];
+        controller.wffu = wffu;
+        controller.save();
+    }
+    
+    @isTest
+    static void testCancel() {
+        WF_Free_Usage_Controller controller = new WF_Free_Usage_Controller(null);
+        WF_Free_Usage__c wffu = [SELECT Id, Account__c FROM WF_Free_Usage__c LIMIT 1];
+        controller.wffu = wffu;
+        controller.cancel();
+    }
+    
+    @isTest
+    static void testRedirect() {
+        WF_Free_Usage_Controller controller = new WF_Free_Usage_Controller(null);
+        WF_Free_Usage__c wffu = [SELECT Id FROM WF_Free_Usage__c LIMIT 1];
+        controller.wffu = wffu;
+        controller.redirect();
+    }
+    
+    @isTest
+    static void testGetPageURL() {
+        WF_Free_Usage_Controller controller = new WF_Free_Usage_Controller(null);
+        WF_Free_Usage__c wffu = [SELECT Id FROM WF_Free_Usage__c LIMIT 1];
+        controller.wffu = wffu;
+        controller.getPageURL();
+    }
+}
